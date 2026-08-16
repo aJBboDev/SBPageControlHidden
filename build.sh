@@ -1,12 +1,23 @@
 #/bin/sh
 #   By @aJBboCydia
 
+set -e
+
 rm -rf .theos packages
 
-make clean
-make package THEOS_PACKAGE_SCHEME=rootless
+for SCHEME in rootless roothide; do
+    make clean
+    make package THEOS_PACKAGE_SCHEME=$SCHEME
+done
 
-sshpass -p "a" ssh root@172.20.10.1 rm -rf /var/mobile/Documents/theosTweaks/*.deb
-sshpass -p "a" scp -r packages/*.deb root@172.20.10.1:/var/mobile/Documents/theosTweaks
-sshpass -p "a" ssh root@172.20.10.1 dpkg -i /var/mobile/Documents/theosTweaks/*.deb
-sshpass -p "a" ssh root@172.20.10.1 killall SpringBoard
+rm -rf .theos
+
+ls -1 packages/*.deb
+
+DEVICE_ARCH=$(sshpass -p "a" ssh root@localhost dpkg --print-architecture)
+DEPLOY_DEB=$(ls -1 packages/*_$DEVICE_ARCH.deb | head -n 1)
+
+sshpass -p "a" ssh root@localhost rm -rf /var/mobile/Documents/theosTweaks/*.deb
+sshpass -p "a" scp "$DEPLOY_DEB" root@localhost:/var/mobile/Documents/theosTweaks
+sshpass -p "a" ssh root@localhost dpkg -i /var/mobile/Documents/theosTweaks/*.deb
+sshpass -p "a" ssh root@localhost killall SpringBoard

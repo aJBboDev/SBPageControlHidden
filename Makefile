@@ -5,6 +5,8 @@ ARCHS = arm64 arm64e
 
 ifeq ($(THEOS_PACKAGE_SCHEME),rootless)
 TARGET = iphone:16.2:15.0
+else ifeq ($(THEOS_PACKAGE_SCHEME),roothide)
+TARGET = iphone:16.2:15.0
 else
 TARGET = iphone:14.5:12.0
 endif
